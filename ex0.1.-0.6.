@@ -1,0 +1,64 @@
+0.4: New note diagram 
+   User->>Browser: Enter "let's go" note into the field
+   User->>Browser: Click 'Save' button
+   Browser->>Server: Send HTTP POST request to https://studies.cs.helsinki.fi/exampleapp/new_note with "let's go"
+   activate Server
+   Server->>Database: Save new note "let's go"
+   Database->>Server: Note saved confirmation
+   Server-->>Browser: Send HTTP response Success status and updated note list [..., { "content": "let's go", "date": "2023-11-20" }]
+   deactivate Server
+   Browser->>User: Display updated note list
+
+0.5: Single page app diagram
+sequenceDiagram
+  participant User
+  participant Browser
+  participant SPA
+  participant Server
+  participant Database
+
+  User->>Browser: Navigate to https://studies.cs.helsinki.fi/exampleapp/spa
+  activate Browser
+    Browser->>SPA: Load SPA page
+    activate SPA
+    SPA->>Server: Request for notes data
+    activate Server
+    Server->>Database: Retrieve notes data
+    Database-->>Server: Send Notes data
+    Server-->>SPA: Send notes data as JSON
+    deactivate Server
+    SPA-->>Browser: Execute JavaScript to render notes dynamically
+    deactivate SPA
+  deactivate Browser
+
+
+0.6: New note in Single page app diagram
+  participant User
+  participant Browser
+  participant SPA
+  participant Server
+  participant Database
+
+  User->>Browser: Navigate to https://studies.cs.helsinki.fi/exampleapp/spa
+  activate Browser
+    Browser->>SPA: Load SPA page
+    activate SPA
+      SPA->>Server: Request for notes data
+      activate Server
+        Server->>Database: Retrieve notes data
+        Database-->>Server: Send Notes data
+        Server-->>SPA: Send notes data as JSON
+      deactivate Server
+      SPA-->>Browser: Execute JavaScript to render notes dynamically
+      activate SPA  # Activate SPA for note creation
+        User->>Browser: Enter (note name) into the field
+        User->>Browser: Click 'Save' button
+        Browser-->>Server: Send POST request to address "new_note_spa" containing the new note as JSON data with both note and timestamp
+        activate Server
+        Server-->>Database: Adds note
+        Database-->>Server: Confirm note added
+        Server-->>Browser: Sends back 201 created status code
+       deactivate Server
+      deactivate SPA  # Deactivate SPA after note creation
+    deactivate SPA
+  deactivate Browser
